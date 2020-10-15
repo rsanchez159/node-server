@@ -1,41 +1,38 @@
 require('./config/config');
 
 const express = require('express');
-const app = express();
+const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
+
+console.log(process.env.URLDB);
+const conexionBD = async ()=> {
+await mongoose.connect(process.env.URLDB, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+  useFindAndModify: false,
+  useCreateIndex: true
+}, (err, res)=> {
+
+    if (err) {
+        console.log(err);
+    }
+    else {
+        console.log('Bd Ok');
+    }
+    
+    });
+}
+
+const app = express();
+
 
 app.use(bodyParser.urlencoded({ extended: false }))
  
 app.use(bodyParser.json())
 
-app.get('/producto', (req, res)=> {
+app.use( require('./routes/producto') );
 
-    res.json('sdsds');
+app.use( require('./routes/usuario') );
 
-
-});
-
-app.post('/producto', (req, res)=> {
-
-    let body = req.body;
-    res.json(body);
-
-
-});
-
-app.put('/producto/:id', (req, res)=> {
-
-    let id = req.params.id;
-
-    res.json(id);
-
-
-});
-
-app.delete('/producto', (req, res)=> {
-
-    res.json('sdsds');
-
-
-});
+conexionBD();
 app.listen(process.env.PORT, console.log('Iniciado en el puerto', process.env.PORT));
