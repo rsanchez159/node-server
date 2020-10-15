@@ -12,10 +12,8 @@ if (process.env.NODE_ENV === 'dev')
 }
 else
 {
-    urlDB = 'mongodb+srv://admin:PN5mIaOYjTD5YBz4@cluster0.1kkdo.mongodb.net/AlbumPeru';
+    urlDB = process.env.urlDB;
 }
 
-process.env.URLDB = urlDB;
-//admin
-//PN5mIaOYjTD5YBz4
-//mongodb+srv://admin:PN5mIaOYjTD5YBz4@cluster0.1kkdo.mongodb.net/test
+process.env.URL = urlDB;
+

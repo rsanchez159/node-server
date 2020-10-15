@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 
 console.log(process.env.URLDB);
 const conexionBD = async ()=> {
-await mongoose.connect(process.env.URLDB, {
+await mongoose.connect(process.env.URL, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
   useFindAndModify: false,
