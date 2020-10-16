@@ -2,17 +2,21 @@ class Response {
     codigoRespuesta
     mensajeRespuesta
     data
+    token
 }
 
 let response = new Response();
 
-const responseExitoso = (data)=> {
+const responseExitoso = (data, token = null)=> {
     console.log('responseExitoso', data);
 
     response = new Response();
     response.codigoRespuesta = 0
     response.mensajeRespuesta = 'Ok',
-    response.data = data
+    response.data = data;
+    if (token != null){
+    response.token = token;
+    }
     return response;
 };
 

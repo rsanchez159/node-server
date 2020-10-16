@@ -4,7 +4,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 
-console.log(process.env.URLDB);
+console.log('Conexion BD: ',process.env.URL);
 const conexionBD = async ()=> {
 await mongoose.connect(process.env.URL, {
   useNewUrlParser: true,
@@ -30,9 +30,8 @@ app.use(bodyParser.urlencoded({ extended: false }))
  
 app.use(bodyParser.json())
 
-app.use( require('./routes/producto') );
+app.use( require('./routes/index') );
 
-app.use( require('./routes/usuario') );
 
 conexionBD();
 app.listen(process.env.PORT, console.log('Iniciado en el puerto', process.env.PORT));

@@ -2,11 +2,10 @@ const express = require('express');
 const Usuario = require('../models/usuario');
 const {Response,responseExitoso, responseFallido} = require ('../models/response/response');
 const bcrypt = require('bcrypt');
-const _ = require('underscore');
-const {verificarToken, verificarRol} = require('../Middlewares/auth');
+const jwt = require('jsonwebtoken');
 const app = express();
 
-app.get('/usuario', verificarToken,  (req, res)=> {
+app.get('/usuario', (req, res)=> {
 
     Usuario.find({})
             .exec((err, usuarioDB)=>{
@@ -29,35 +28,46 @@ app.get('/usuario', verificarToken,  (req, res)=> {
 
 });
 
-app.post('/usuario', [verificarToken, verificarRol], (req, res)=> {
+app.post('/login', (req, res)=> {
 
     let body = req.body;
     let respuesta = new Response();
 
-    console.log('Body', body);
+    console.log('Body: ', body);
 
-    let usuario = new Usuario({
-        nombre: body.nombre,
-        email: body.email,
-        password: bcrypt.hashSync(body.password,10),
-        role: body.role,
-        
-    });
-
-    console.log('usuario: ', usuario);
-
-    usuario.save((err, usuarioDB)=> {
+    Usuario.findOne({email: body.email},(err, usuarioDB)=> {
 
         if (err){
             console.log('err:', err);
             respuesta = responseFallido(err)
-            res.status(400).json(
+            res.status(500).json(
                 respuesta
             )
         }
         else {
+            if (!usuarioDB)
+            {
+                respuesta = responseFallido('Usuario incorrecto')
+                return res.status(400).json(
+                    respuesta
+                )
+            }
+
             console.log('usuarioDB', usuarioDB);
-            respuesta = responseExitoso(usuarioDB);
+
+           if( !bcrypt.compareSync(body.password, usuarioDB.password)){
+            respuesta = responseFallido('Contraseña incorrecta')
+            return res.status(400).json(
+                respuesta
+            )
+           }
+
+           let token = jwt.sign({
+            usuario: usuarioDB
+        },process.env.SEED, {expiresIn: process.env.caducidad_token});
+
+            respuesta = responseExitoso(usuarioDB, token);
+
             res.json(
                 respuesta
             )
@@ -66,7 +76,7 @@ app.post('/usuario', [verificarToken, verificarRol], (req, res)=> {
 });
 
 
-app.put('/usuario/:id', verificarToken, (req, res)=> {
+app.put('/usuario/:id', (req, res)=> {
 
     let id = req.params.id;
     let body = _.pick(req.body, ['nombre', 'email', 'img', 'role', 'estado']);
@@ -93,7 +103,7 @@ app.put('/usuario/:id', verificarToken, (req, res)=> {
 
 });
 
-app.delete('/usuario/:id', verificarToken, (req, res)=> {
+app.delete('/usuario/:id', (req, res)=> {
 
     let id = req.params.id;
     let respuesta = new Response();
